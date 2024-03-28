@@ -1,0 +1,21 @@
+Students:
+
+Hussein Elazhary 
+ID: 900211733
+
+Eslam Tawfik
+ID: 900215295
+
+(Release Notes)
+
+To be Continued:
+- Bug with negative immediates in ADDI
+- code cleanliness/formatting (Variable Case usage)
+- Remaining instructions test
+
+
+Working:
+- All implemented modules functional
+- General test benches to ensure implemented instruction functionality
+
+
