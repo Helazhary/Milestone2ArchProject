@@ -29,9 +29,10 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
     //----------------------------------------------------------------------
     wire  [31:0]Inst;
     //----------------------------------------------------------------------
-    wire Branch, MemRead ,MemtoReg ,MemWrite ,ALUSrc ,RegWrite;
+    wire Branch, MemRead ,MemtoReg ,MemWrite ,ALUSrc ,RegWrite, AUIPCsel;
     wire cf, zf, vf, sf;
     wire [1:0] ALUOp;
+
 
     //----------------------------------------------------------------------
     wire [3:0]ALU_selection;
@@ -48,6 +49,7 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
     wire  pc_update_cout;
     //----------------------------------------------------------------------
     wire[31:0] alu_in2;
+    wire[31:0] alu_in1;
     wire[31:0] alu_out;
 
     //----------------------------------------------------------------------
@@ -59,7 +61,7 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
 
     NBitReg #(32)pc(.clk(clk), .rst(rst),.Load(1), .D(pc_in),.Q(pc_out) );
 
-  InstMem IM(.addr(pc_out[7:2]), .data_out(Inst));
+    InstMem IM(.addr(pc_out[7:2]), .data_out(Inst));
 
     N_bit_RegFile#(32) nbrf(.r_addr1(Inst[19:15]), .r_addr2(Inst[24:20]),.w_addr(Inst[11:7]), .w_data(reg_write_data),.w_en(RegWrite),.clk(clk), .rst(rst), .r_data1(r_data1), .r_data2(r_data2));
 
@@ -68,8 +70,9 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
 
 
     nbit_mux #(32) mxalu(.a(r_data2),.b(immediate),.s(ALUSrc),.c(alu_in2)); //ALU _ MUX
+    nbit_mux #(32) mxAUIPCalu(.a(r_data1), .b(pc_out), .s(AUIPCsel), .c(alu_in1)); //ALU_MUX for AUIPC
 
-    CU cu( .inst(Inst), .Branch(Branch), .MemRead(MemRead) ,.MemtoReg(MemtoReg) ,.MemWrite(MemWrite) ,.ALUSrc(ALUSrc) ,.RegWrite(RegWrite), . ALUOp(ALUOp));
+    CU cu( .inst(Inst), .Branch(Branch), .MemRead(MemRead) ,.MemtoReg(MemtoReg) ,.MemWrite(MemWrite) ,.ALUSrc(ALUSrc) ,.RegWrite(RegWrite), . ALUOp(ALUOp), .AUIPCsel(AUIPCsel));
     ALU_CU alucu(.ALUop(ALUOp), .inst(Inst), .ALU_selection(ALU_selection) );
 
 
@@ -80,8 +83,11 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
 
 
     nbit_mux #(32) imm_reg_mx(.a({pc_update_sum}),.b({jump_inst_sum}),.s((zf && Branch)),.c(pc_in)); //PC_MUX
+    
+ 
+    
                                                                         //shamt 3amleeno manually
-    N_Bit_ALU #(32) alu( .a(r_data1), .b(alu_in2), .alufn(ALU_selection), .shamt(1), .zf(zf), .cf(cf), .vf(vf), .sf(sf), .r(alu_out) );
+    N_Bit_ALU #(32) alu( .a(alu_in1), .b(alu_in2), .alufn(ALU_selection), .shamt(1), .zf(zf), .cf(cf), .vf(vf), .sf(sf), .r(alu_out) );
      
     
     
@@ -96,7 +102,7 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
         case(led_sel)
             2'b00:LED= Inst[15:0];
             2'b01:LED= Inst[31:16];
-            2'b10:LED= {2'b00, ALUOp,ALU_selection,Branch, MemRead ,MemtoReg ,MemWrite ,ALUSrc ,RegWrite,zf,(zf && Branch)};
+            2'b10:LED= {2'b00, ALUOp,ALU_selection,Branch, MemRead ,MemtoReg ,MemWrite ,ALUSrc ,RegWrite,zf,(zf && Branch)}; //modify to account for  AUIPCsel
             default LED=0;
         endcase
     end
