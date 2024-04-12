@@ -37,7 +37,7 @@ module ALU_CU(input[1:0]ALUop,input[31:0]inst, output reg[3:0]ALU_selection );
                 `F3_SLT:ALU_selection=    `ALU_SLT;     
                 `F3_SLTU :ALU_selection= `ALU_SLTU;      
                 `F3_XOR :ALU_selection=    `ALU_XOR;    
-                `F3_SRL  :ALU_selection=     `ALU_SRL;  
+                `F3_SRL :ALU_selection=  (inst[30]==1)? `ALU_SRA:`ALU_SRL ;  
                 `F3_OR   :ALU_selection=   `ALU_OR;    
                 `F3_AND  :ALU_selection=   `ALU_AND;                    
                 default: ALU_selection = 4'b1111;   //That wil; not happen

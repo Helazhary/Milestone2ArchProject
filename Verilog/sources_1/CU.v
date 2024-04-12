@@ -94,7 +94,7 @@ module CU(
         case (inst[6:2])
 
 
-            `OPCODE_Arith_R: begin //R
+            `OPCODE_Arith_R: begin //R  
                 Branch= 0;
                 MemRead=0;
                 MemtoReg=0;
@@ -136,7 +136,7 @@ module CU(
             end
             
             
-            `OPCODE_Arith_I: begin
+            `OPCODE_Arith_I: begin  //Immediate
             {Branch,MemRead,MemtoReg,ALUOp,MemWrite,ALUSrc,RegWrite, AUIPCsel}=9'b0_0_0_10_0_1_1_0;
             end
             

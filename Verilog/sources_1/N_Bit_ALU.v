@@ -37,7 +37,6 @@
 module N_Bit_ALU(
 	input   wire [31:0] a, b,
 		input   wire [3:0]  alufn,
-	input   wire [4:0]  shamt,
 	output  reg  [31:0] r,
 	output  wire        cf, zf, vf, sf
 
@@ -55,6 +54,8 @@ module N_Bit_ALU(
     assign vf = (a[31] ^ (op_b[31]) ^ add[31] ^ cf);
     
     wire[31:0] sh;
+    wire [4:0]  shamt;
+    assign shamt = b[4:0];
     shifter shifter0(.a(a), .shamt(shamt), .type(alufn[1:0]),  .r(sh));
     //type
     // 00 SLLI 
@@ -66,15 +67,15 @@ module N_Bit_ALU(
           (* parallel_case *)
         case (alufn)
             // arithmetic
-            4'b00_00 : r = add;
-            4'b00_01 : r = add;
-            4'b00_11 : r = b;
+            4'b00_00 : r = add; //add
+            4'b00_01 : r = add; //sub
+            4'b00_11 : r = b;   //pass
             // logic
             4'b01_00:  r = a | b;
             4'b01_01:  r = a & b;
             4'b01_11:  r = a ^ b;
             // shift
-            `ALU_SLL:  r=sh;//SLLI
+            `ALU_SLL:  r=sh;//SLL
             `ALU_SRL:  r=sh; //SRL                                     
             `ALU_SRA:  r=sh;//SRA
             // slt & sltu

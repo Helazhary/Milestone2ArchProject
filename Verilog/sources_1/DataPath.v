@@ -80,14 +80,14 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
     FullAdder #(32)fa(.a(pc_out), .b(new_imm),  .addsub(0), .c_in(0), .sum(jump_inst_sum), .c_out(jump_inst_cout)); // beq case
     FullAdder #(32)fa2(.a(4), .b(pc_out),  .addsub(0), .c_in(0), .sum(pc_update_sum), .c_out(pc_update_cout)); // normal case
 
-
+        
 
     nbit_mux #(32) imm_reg_mx(.a({pc_update_sum}),.b({jump_inst_sum}),.s((zf && Branch)),.c(pc_in)); //PC_MUX
     
  
     
-                                                                        //shamt 3amleeno manually
-    N_Bit_ALU #(32) alu( .a(alu_in1), .b(alu_in2), .alufn(ALU_selection), .shamt(1), .zf(zf), .cf(cf), .vf(vf), .sf(sf), .r(alu_out) );
+                                                                        
+    N_Bit_ALU #(32) alu( .a(alu_in1), .b(alu_in2), .alufn(ALU_selection), .zf(zf), .cf(cf), .vf(vf), .sf(sf), .r(alu_out) );
      
     
     
@@ -95,6 +95,13 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
     DataMem datamem ( .clk(clk), .fun3(Inst[14:12]), .MemRead(MemRead),  .MemWrite(MemWrite), .addr(alu_out[7:0]),  .data_in(r_data2),  .data_out(mem_data_out));
 
     nbit_mux #(32) mem_alu_mx(.a(alu_out),.b(mem_data_out),.s(MemtoReg),.c(reg_write_data)); //MEM_TO_REG MUX
+
+
+
+
+
+
+
 
     //---------------------------------------------------------------------------------------------------------------------------------------
 
