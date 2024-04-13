@@ -25,11 +25,13 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
 
 
      wire [31:0]pc_out; 
-    wire [31:0]pc_in;
+    wire [31:0]pc_in, pc_mux1_out;
+    
     //----------------------------------------------------------------------
     wire  [31:0]Inst;
     //----------------------------------------------------------------------
     wire Branch, MemRead ,MemtoReg ,MemWrite ,ALUSrc ,RegWrite, AUIPCsel;
+    wire Jal,Jalr;//Jumping-Tawfik
     wire cf, zf, vf, sf;
     wire [1:0] ALUOp;
 
@@ -55,15 +57,18 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
     //----------------------------------------------------------------------
 
     wire [31:0] mem_data_out;
-    wire [31:0] reg_write_data;
+    wire [31:0] reg_write_data, RF_data_in;
 
 
 
     NBitReg #(32)pc(.clk(clk), .rst(rst),.Load(1), .D(pc_in),.Q(pc_out) );
+   
 
     InstMem IM(.addr(pc_out[7:2]), .data_out(Inst));
-
-    N_bit_RegFile#(32) nbrf(.r_addr1(Inst[19:15]), .r_addr2(Inst[24:20]),.w_addr(Inst[11:7]), .w_data(reg_write_data),.w_en(RegWrite),.clk(clk), .rst(rst), .r_data1(r_data1), .r_data2(r_data2));
+    
+    nbit_mux #(32) mx_RF_writedata(.a(reg_write_data),.b(pc_out+4),.s(Jal|Jalr),.c(RF_data_in)); // Write-data MUX    //Jumping-Tawfik
+    
+    N_bit_RegFile#(32) nbrf(.r_addr1(Inst[19:15]), .r_addr2(Inst[24:20]),.w_addr(Inst[11:7]), .w_data(RF_data_in),.w_en(RegWrite),.clk(clk), .rst(rst), .r_data1(r_data1), .r_data2(r_data2));//Jumping-Tawfik
 
     ImmGen immgen(.IR(Inst), .gen_out(immediate));// A big error lives here
     nBit_Shift_Left#(32) n_bit_shifter(.num(immediate), .res(new_imm));//Can use shifter module here
@@ -72,7 +77,7 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
     nbit_mux #(32) mxalu(.a(r_data2),.b(immediate),.s(ALUSrc),.c(alu_in2)); //ALU _ MUX
     nbit_mux #(32) mxAUIPCalu(.a(r_data1), .b(pc_out), .s(AUIPCsel), .c(alu_in1)); //ALU_MUX for AUIPC
 
-    CU cu( .inst(Inst), .Branch(Branch), .MemRead(MemRead) ,.MemtoReg(MemtoReg) ,.MemWrite(MemWrite) ,.ALUSrc(ALUSrc) ,.RegWrite(RegWrite), . ALUOp(ALUOp), .AUIPCsel(AUIPCsel));
+    CU cu( .inst(Inst), .Branch(Branch), .MemRead(MemRead) ,.MemtoReg(MemtoReg) ,.MemWrite(MemWrite) ,.ALUSrc(ALUSrc) ,.RegWrite(RegWrite), . ALUOp(ALUOp), .AUIPCsel(AUIPCsel), .Jal(Jal),.Jalr(Jalr));//Jumping-Tawfik
     ALU_CU alucu(.ALUop(ALUOp), .inst(Inst), .ALU_selection(ALU_selection) );
 
 
@@ -82,7 +87,9 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
 
         
 
-    nbit_mux #(32) imm_reg_mx(.a({pc_update_sum}),.b({jump_inst_sum}),.s((zf && Branch)),.c(pc_in)); //PC_MUX
+    nbit_mux #(32) imm_reg_mx(.a({pc_update_sum}),.b({jump_inst_sum}),.s((zf && Branch)),.c(pc_mux1_out)); //PC_MUX
+    
+   nbit_mux #(32) jmp_mux(.a(pc_mux1_out),.b(alu_out),.s(Jalr),.c(pc_in)); //Mux after PC_mux  to check jalr //Jumping-Tawfik     
     
  
     

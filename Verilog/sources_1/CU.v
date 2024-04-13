@@ -35,7 +35,7 @@
 
 
 module CU(
-    input[31:0] inst, output reg Branch, MemRead ,MemtoReg ,MemWrite ,ALUSrc ,RegWrite, AUIPCsel, output reg [1:0] ALUOp
+    input[31:0] inst, output reg Branch, MemRead ,MemtoReg ,MemWrite ,ALUSrc ,RegWrite, AUIPCsel, Jal, Jalr, output reg [1:0] ALUOp
 );
 //    reg [13:0]signals;
 //    always @ (*) begin
@@ -103,6 +103,7 @@ module CU(
                 ALUSrc=0;
                 RegWrite=1;
                 AUIPCsel = 0;
+                {Jal,Jalr}=2'b00;
             end
             `OPCODE_Load: begin //load
                 Branch= 0;
@@ -113,6 +114,8 @@ module CU(
                 ALUSrc=1;
                 RegWrite=1;
                  AUIPCsel = 0;
+                 {Jal,Jalr}=2'b00;
+                 
             end
             `OPCODE_Store: begin //store
                 Branch= 0;
@@ -123,6 +126,7 @@ module CU(
                 ALUSrc=1;
                 RegWrite=0;
                  AUIPCsel = 0;
+                 {Jal,Jalr}=2'b00;
             end
             `OPCODE_Branch: begin //Branch
                 Branch= 1;
@@ -133,11 +137,13 @@ module CU(
                 ALUSrc=0;
                 RegWrite=0;
                  AUIPCsel = 0;
+                 {Jal,Jalr}=2'b00;
             end
             
             
             `OPCODE_Arith_I: begin  //Immediate
             {Branch,MemRead,MemtoReg,ALUOp,MemWrite,ALUSrc,RegWrite, AUIPCsel}=9'b0_0_0_10_0_1_1_0;
+            {Jal,Jalr}=2'b00;
             end
             
                `OPCODE_AUIPC: begin 
@@ -149,6 +155,7 @@ module CU(
                      ALUSrc= 1;     // ALU source is immediate (for adding to PC)
                      RegWrite= 1;  
                       AUIPCsel = 1; 
+                      {Jal,Jalr}=2'b00;
                  end
          
                  `OPCODE_LUI: begin 
@@ -160,9 +167,34 @@ module CU(
                      ALUSrc= 1;     
                      RegWrite= 1;  
                       AUIPCsel = 0;
+                      {Jal,Jalr}=2'b00;
                  end
 
-
+                `OPCODE_JAL: begin
+                
+                Branch= 1;
+                MemRead=0;
+                MemtoReg=0;
+                ALUOp= 2'b00;
+                MemWrite=0 ;
+                ALUSrc=0;
+                RegWrite=1;
+                 AUIPCsel =0;
+                 {Jal,Jalr}=2'b10;
+                
+                end
+                
+                `OPCODE_JALR: begin
+                Branch= 0;
+                MemRead=0;
+                MemtoReg=0;
+                ALUOp= 2'b00;
+                MemWrite= 0;
+                ALUSrc=1;
+                RegWrite=1;
+                 AUIPCsel =0;
+                 {Jal,Jalr}=2'b01;
+                end
         endcase
 
     end
