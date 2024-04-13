@@ -58,10 +58,14 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
 
     wire [31:0] mem_data_out;
     wire [31:0] reg_write_data, RF_data_in;
+    //-----------------------------system instructions--------------------------------
+    wire ecall;
+    wire [31:0] pc_mux2_out;
 
 
+    nbit_mux #(32) mx_pc(.a(pc_in),.b(pc_out),.s(ecall),.c(pc_mux2_out)); //PC MUX for ecall Hussein
 
-    NBitReg #(32)pc(.clk(clk), .rst(rst),.Load(1), .D(pc_in),.Q(pc_out) );
+    NBitReg #(32)pc(.clk(clk), .rst(rst),.Load(1), .D(pc_mux2_out),.Q(pc_out));
    
 
     InstMem IM(.addr(pc_out[7:2]), .data_out(Inst));
@@ -77,7 +81,7 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
     nbit_mux #(32) mxalu(.a(r_data2),.b(immediate),.s(ALUSrc),.c(alu_in2)); //ALU _ MUX
     nbit_mux #(32) mxAUIPCalu(.a(r_data1), .b(pc_out), .s(AUIPCsel), .c(alu_in1)); //ALU_MUX for AUIPC
 
-    CU cu( .inst(Inst), .Branch(Branch), .MemRead(MemRead) ,.MemtoReg(MemtoReg) ,.MemWrite(MemWrite) ,.ALUSrc(ALUSrc) ,.RegWrite(RegWrite), . ALUOp(ALUOp), .AUIPCsel(AUIPCsel), .Jal(Jal),.Jalr(Jalr));//Jumping-Tawfik
+    CU cu( .inst(Inst), .Branch(Branch), .MemRead(MemRead) ,.MemtoReg(MemtoReg) ,.MemWrite(MemWrite) ,.ALUSrc(ALUSrc) ,.RegWrite(RegWrite), . ALUOp(ALUOp), .AUIPCsel(AUIPCsel), .Jal(Jal),.Jalr(Jalr),.ecall(ecall));//system call Hussein
     ALU_CU alucu(.ALUop(ALUOp), .inst(Inst), .ALU_selection(ALU_selection) );
 
 
