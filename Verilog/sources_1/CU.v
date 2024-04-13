@@ -46,59 +46,10 @@ module CU (
     Jal,
     Jalr,
     ecall,
-    output reg [1:0] ALUOp
+    output reg [1:0] ALUOp,
+    output reg [2:0] branch_type
 );
-  //    reg [13:0]signals;
-  //    always @ (*) begin
-  //        case (inst[6:0])
-  //            //I-format 
-  //            7'b0010011 : signals = 14'b00_000_01_011_00_11;
 
-  //            //R-format
-  //            7'b0110011 : begin 
-  //                          if (inst[25]) begin // I SPEC 
-  //                            signals = 14'b00_000_01_100_00_01;
-  //                          end 
-  //                          else begin //M SPEC
-  //                            signals = 14'b00_000_01_011_00_01;
-  //                          end
-  //                         end
-
-
-  //            //Load
-  //            7'b0000011 : begin 
-  //                            case(inst[14:12]) 
-  //                                3'b010 : signals = 14'b00_001_00_010_00_11; //LW  
-  //                                3'b000 : signals = 14'b00_100_00_010_00_11; //LB 
-  //                                3'b001 : signals = 14'b00_010_00_010_00_11; //LH 
-  //                                3'b100 : signals = 14'b00_101_00_010_00_11; //LBU 
-  //                                3'b101 : signals = 14'b00_011_00_010_00_11; //LHU  
-
-  //                                default : signals = 14'b00_000_00_000_00_00;
-  //                            endcase 
-  //                         end
-  //             //Store
-  //            7'b0100011 : begin  
-  //                            case(inst[14:12]) 
-
-  //                                3'b010: signals = 14'b00_000_00_010_01_10;    //SW
-  //                                3'b000: signals = 14'b00_000_00_010_11_10;    //SB 
-  //                                3'b001: signals = 14'b00_000_00_010_10_10;    //SH
-
-  //                                default: signals = 14'b00_000_00_000_00_00;
-  //                            endcase  
-  //                        end
-  //           //Branch         
-  //            7'b1100011 : signals = 14'b01_000_01_001_00_00;
-
-
-
-
-  //            default    : signals = 14'b00_000_00_000_00_00; 
-
-  //       endcase
-
-  //         end
 
   always @(*) begin
     ecall = 0;
@@ -154,6 +105,8 @@ module CU (
         RegWrite = 0;
         AUIPCsel = 0;
         {Jal, Jalr} = 2'b00;
+        branch_type = inst[14:12];
+
       end
 
 
@@ -236,3 +189,55 @@ module CU (
 
 
 endmodule
+
+  //    reg [13:0]signals;
+  //    always @ (*) begin
+  //        case (inst[6:0])
+  //            //I-format 
+  //            7'b0010011 : signals = 14'b00_000_01_011_00_11;
+
+  //            //R-format
+  //            7'b0110011 : begin 
+  //                          if (inst[25]) begin // I SPEC 
+  //                            signals = 14'b00_000_01_100_00_01;
+  //                          end 
+  //                          else begin //M SPEC
+  //                            signals = 14'b00_000_01_011_00_01;
+  //                          end
+  //                         end
+
+
+  //            //Load
+  //            7'b0000011 : begin 
+  //                            case(inst[14:12]) 
+  //                                3'b010 : signals = 14'b00_001_00_010_00_11; //LW  
+  //                                3'b000 : signals = 14'b00_100_00_010_00_11; //LB 
+  //                                3'b001 : signals = 14'b00_010_00_010_00_11; //LH 
+  //                                3'b100 : signals = 14'b00_101_00_010_00_11; //LBU 
+  //                                3'b101 : signals = 14'b00_011_00_010_00_11; //LHU  
+
+  //                                default : signals = 14'b00_000_00_000_00_00;
+  //                            endcase 
+  //                         end
+  //             //Store
+  //            7'b0100011 : begin  
+  //                            case(inst[14:12]) 
+
+  //                                3'b010: signals = 14'b00_000_00_010_01_10;    //SW
+  //                                3'b000: signals = 14'b00_000_00_010_11_10;    //SB 
+  //                                3'b001: signals = 14'b00_000_00_010_10_10;    //SH
+
+  //                                default: signals = 14'b00_000_00_000_00_00;
+  //                            endcase  
+  //                        end
+  //           //Branch         
+  //            7'b1100011 : signals = 14'b01_000_01_001_00_00;
+
+
+
+
+  //            default    : signals = 14'b00_000_00_000_00_00; 
+
+  //       endcase
+
+  //         end
