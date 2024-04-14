@@ -57,6 +57,7 @@ module CU (
     //Default to no operation which accounts for FENCE and EBREAK as they will not be defined so they will be a no-op
     {Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite, AUIPCsel, Jal, Jalr} = 9'b000000000;
     ALUOp = 2'b00;
+    branch_type = 3'b011; //default to non of the implemented branches unique code 3
 
     case (inst[6:2])
 

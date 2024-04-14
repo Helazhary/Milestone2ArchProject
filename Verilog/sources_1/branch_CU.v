@@ -31,13 +31,12 @@ reg beq, bne, blt, bge, bltu, bgeu;
 
     
 always @ (*) begin
-branch_condition = 0;
-beq = branch & (branch_type == 3'b001) & zf;
-bne = branch & (branch_type == 3'b010) & ~zf;
-blt = branch & (branch_type == 3'b011) & sf;
-bge = branch & (branch_type == 3'b100) & ~sf;
-bltu = branch & (branch_type == 3'b101) & ~cf;
-bgeu = branch & (branch_type == 3'b110) & cf;
+beq =  branch & (branch_type == 3'b000) & zf;
+bne =  branch & (branch_type == 3'b001) & ~zf;
+blt =  branch & (branch_type == 3'b100) & sf;
+bge =  branch & (branch_type == 3'b101) & ~sf;
+bltu = branch & (branch_type == 3'b110) & ~cf;
+bgeu = branch & (branch_type == 3'b111) & cf;
 
 case(branch_type)
     3'b000: branch_condition = beq;
