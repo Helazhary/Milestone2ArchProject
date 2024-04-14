@@ -2,6 +2,12 @@ Note: The paradigm chosen for working was pair programming for merge conflict pr
 consistent second eye on the code and two brains on one problem. Planning was done on whiteboards for modules and datapath planning then implemented on vivado. The following is a general
 organization of the workflow in light of the pair programming fashion which will be represented by dates, rather than names. Work was conducted both in person in the Architecture Lab, or on a google meet where both members were always working in coordination. The most updated work will be at the top of the document as a reverse chronological paradigm showcasing the most recent updates first.
 
+April 13:
+	- Fixed Branch CU errors and general testing for all branch instrucitons working properly
+
+April 11:
+	- Implemented Branch Control Unit but not working properly
+
 April 10:
 	- Full testing for system calls and CU bug fixed
 
