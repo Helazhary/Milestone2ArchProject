@@ -11,14 +11,14 @@ random_funct3s = ["000", "001", "010"]  # Store
 random_funct3i = ["000", "010", "011", "100", "110", "111"]  # Immediate arithmetic/logical 
 random_funct3r = ["000", "001", "010", "011", "100", "101", "110", "111"]  # Register arithmetic/logical 
 
-#generate 100 test cases
-for _ in range(10):
+#generate up to 20 instruction program automatically
+for _ in range(20):
     opcode = random.choice(random_opcode) 
-    # Immediate values for different instruction formats
-    u_imm = to_binary(random.randint(0, 1048575), 20)
-    i_imm = to_binary(random.randint(0, 4095), 12)
-    b_imm = to_binary(random.randint(0, 4095), 12)
-    s_imm = to_binary(random.randint(0, 4095), 12)
+    # Immediate values for different instruction formats limited to 64 for simplicity
+    u_imm = to_binary(random.randint(0, 64), 20)
+    i_imm = to_binary(random.randint(0, 64), 12)
+    b_imm = to_binary(random.randint(0, 64), 12)
+    s_imm = to_binary(random.randint(0, 64), 12)
 
 
     # Register identifiers as 5-bit binary values
