@@ -28,10 +28,14 @@ module DataMem
     reg[31:0] temp;
                         
     initial begin
-mem[0]=10;
-mem[1]=13;
-mem[2]=30;
-      
+// mem[0]=10;
+// mem[1]=13;
+// mem[2]=30;
+mem[0]=8'd17;
+mem[1]=8'd9;
+mem[2]=8'd25; 
+
+
       
 
     end
