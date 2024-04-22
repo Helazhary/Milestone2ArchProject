@@ -2,7 +2,12 @@ import random
 
 
 def to_binary(n, length):
-    return f'{n:0{length}b}'
+    # Handle negative numbers with two's complement
+    if n < 0:
+        return format((1 << length) + n, '0{}b'.format(length))
+    else:
+        return format(n, '0{}b'.format(length))
+
 
 random_opcode = ["0110111", "0010111", "1101111", "1100111", "1100011", "0000011", "0100011", "0010011", "0110011", "0001111", "1110011"]
 random_funct3b = ["000", "001", "011", "100", "101", "110", "111"]  # Branch 
@@ -11,6 +16,9 @@ random_funct3s = ["000", "001", "010"]  # Store
 random_funct3i = ["000", "010", "011", "100", "110", "111"]  # Immediate arithmetic/logical 
 random_funct3r = ["000", "001", "010", "011", "100", "101", "110", "111"]  # Register arithmetic/logical 
 
+
+readyinputs = []
+i=0
 #generate up to 20 instruction program automatically
 for _ in range(20):
     opcode = random.choice(random_opcode) 
@@ -59,4 +67,19 @@ for _ in range(20):
         continue
 
     if len(final_output) == 32:
+        readyinput = ("mem[" +str(i)+ "] = 32'b" + final_output+";")
         print(final_output)
+        readyinputs.append(readyinput)
+        i = i+1
+    
+directory_path = r"C:\\Users\\saso-\\Desktop\\uniWork\\ArchProject\\Milestone2ArchProject\\TestPrograms\\AutoTestGen"  # Use raw string to avoid escaping issues
+file_name = "InstMemAuto.txt"
+full_path = directory_path + "\\" + file_name
+
+
+
+with open(full_path, 'w') as file:
+    for instruction in readyinputs:
+        file.write(instruction + "\n")
+
+print("Instructions saved to "+ file_name)
