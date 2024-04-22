@@ -7,9 +7,14 @@ April 13:
 
 April 11:
 	- Implemented Branch Control Unit but not working properly
+	- Implemented jumping instructions
+	- Fixed the shifting problem
+	
 
 April 10:
 	- Full testing for system calls and CU bug fixed
+	- Made a full test program that contains all instructions
+	- Fixel all R and I types instructions problems
 
 April 8:
 	- Implemented all system calls
