@@ -9,13 +9,15 @@ ID: 900215295
 (Release Notes)
 
 To be Continued:
-- Bug with negative immediates in ADDI
-- code cleanliness/formatting (Variable Case usage)
-- Remaining instructions test
+- Project completed
 
 
 Working:
-- All implemented modules functional
-- General test benches to ensure implemented instruction functionality
+- 40 instructions
+- pipeline
+- hazard handling
+- single memory
+- Bonus: auto test gen
+- Bonus: single mem hazard better solution
 
 
