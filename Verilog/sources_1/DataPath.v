@@ -96,13 +96,35 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
     wire [31:0]  MEM_WB_mem_data_out, MEM_WB_alu_out;
     wire MEM_WB_RegWrite, MEM_WB_MemtoReg;
     wire [4:0] MEM_WB_INST_WriteReg;
+
+
+
+
+    //------------------------------------Forwarding--------------------------------------
+    wire [1:0] forwardA, forwardB;
+    wire [31:0] fwd_mux_out1, fwd_mux_out2;
+
+    wire stall;
+
+
+
+
+
+
+
+
+
+
+
+
+
   
-    //--------------------------------------------------------------------------------------
+//\\---------------------------------()--[]-Datapath-[]--()-----------------------------------//\\
 
 
 
 //----------------------------------------IF-----------------------------------------------------
-    NBitReg #(32)pc(.clk(clk), .rst(rst),.Load(1), .D(pc_mux2_out),.Q(pc_out));
+    NBitReg #(32)pc(.clk(clk), .rst(rst),.Load(!stall), .D(pc_mux2_out),.Q(pc_out));
 
  nbit_mux #(32) mx_pc(.a(pc_in),.b(pc_out),.s(ecall),.c(pc_mux2_out)); //PC MUX for ecall Hussein (just before the PC register)
 
@@ -117,7 +139,7 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
 
   
 
-    NBitReg #(64) IF_ID(.clk(clk), .rst(rst),.Load(1), .D({pc_out,Inst}),.Q({IF_ID_PC,IF_ID_INST}));
+    NBitReg #(64) IF_ID(.clk(clk), .rst(rst),.Load(!stall), .D({pc_out,Inst}),.Q({IF_ID_PC,IF_ID_INST}));
    
 
   
@@ -143,7 +165,9 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
      .D({Branch,           MemRead,       MemtoReg,       MemWrite,     ALUSrc,      RegWrite,      AUIPCsel,       Jal,     Jalr,       ecall,       ALUOp,       branch_type,  IF_ID_PC,r_data1,r_data2,immediate,IF_ID_INST,IF_ID_INST[19:15],IF_ID_INST[ 24:20],IF_ID_INST[11:7]}),
      .Q({ID_EX_Branch,ID_EX_MemRead,ID_EX_MemtoReg,ID_EX_MemWrite,ID_EX_ALUSrc,ID_EX_RegWrite,ID_EX_AUIPCsel,ID_EX_Jal,ID_EX_Jalr, ID_EX_ecall, ID_EX_ALUOp, ID_EX_branch_type,  ID_EX_PC,ID_EX_r_data1,ID_EX_r_data2,ID_EX_immediate,ID_EX_INST,ID_EX_Rs1,ID_EX_Rs2,ID_EX_INST_WriteReg}));
 
-
+//Hazard detection
+hazard_detection_unit hzrd( .IF_ID_Rs1(IF_ID_INST[19:15]), .IF_ID_Rs2(IF_ID_INST[24:20]),.ID_EX_MemRead(ID_EX_MemRead),.ID_EX_RegisterRd(ID_EX_INST_WriteReg),.stall(stall));
+     
 
 
 
@@ -154,8 +178,8 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
    branch_CU branch_cu(.branch_type(ID_EX_branch_type), .branch(ID_EX_Branch), .cf(cf), .zf(zf), .sf(sf), .branch_condition(branch_condition)); //Branching unit Hussein
 
 
-  nbit_mux #(32) mxAUIPCalu(.a(ID_EX_r_data1), .b(ID_EX_PC), .s(ID_EX_AUIPCsel), .c(alu_in1)); //ALU_MUX for AUIPC
-    nbit_mux #(32) mxalu(.a(ID_EX_r_data2),.b(ID_EX_immediate),.s(ID_EX_ALUSrc),.c(alu_in2)); //ALU _ MUX
+  nbit_mux #(32) mxAUIPCalu(.a(fwd_mux_out1), .b(ID_EX_PC), .s(ID_EX_AUIPCsel), .c(alu_in1)); //ALU_MUX for AUIPC
+    nbit_mux #(32) mxalu(.a(fwd_mux_out2),.b(ID_EX_immediate),.s(ID_EX_ALUSrc),.c(alu_in2)); //ALU _ MUX
   
 
 
@@ -186,10 +210,26 @@ module DataPath(input clk, rst, input [1:0] led_sel, input[3:0]SSD_sel, output r
 //---------------------------------------------------------------WB-----------------------------------------------------
     
     
-                                                            //from mem_wb_memtoreg
+                                                        
    nbit_mux #(32) mem_alu_mx(.a(MEM_WB_alu_out),.b(MEM_WB_mem_data_out),.s(MEM_WB_MemtoReg),.c(reg_write_data)); //MEM_TO_REG MUX
 
 
+    //-------------------------------------Forwarding Unit ----------------------------------------
+
+    Forwarding_Unit Fwd_unit (
+        .ID_EX_Rs1(ID_EX_Rs1),
+        .ID_EX_Rs2(ID_EX_Rs2),
+        .EX_MEM_RegWrite(EX_MEM_RegWrite),
+        .MEM_WB_RegWrite(MEM_WB_RegWrite),
+        .EX_MEM_RegisterRd(EX_MEM_INST_WriteReg),
+        .MEM_WB_RegisterRd(MEM_WB_INST_WriteReg),
+        .forwardA(forwardA),
+        .forwardB(forwardB)
+    );
+
+    Mux4x1 #(32) fwd_mux1( .a(ID_EX_r_data1),.b(reg_write_data), .x(EX_MEM_alu_out),.y(),.s(forwardA), .c(fwd_mux_out1));
+    
+    Mux4x1 #(32) fwd_mux2( .a(ID_EX_r_data2),.b(reg_write_data), .x(EX_MEM_alu_out),.y(),.s(forwardB), .c(fwd_mux_out2));
 
 
 
