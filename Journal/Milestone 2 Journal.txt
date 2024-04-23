@@ -2,6 +2,31 @@ Note: The paradigm chosen for working was pair programming for merge conflict pr
 consistent second eye on the code and two brains on one problem. Planning was done on whiteboards for modules and datapath planning then implemented on vivado. The following is a general
 organization of the workflow in light of the pair programming fashion which will be represented by dates, rather than names. Work was conducted both in person in the Architecture Lab, or on a google meet where both members were always working in coordination. The most updated work will be at the top of the document as a reverse chronological paradigm showcasing the most recent updates first.
 
+
+April 22:
+	- Demo prep
+	- Finalizing report, block diagram, and other project submission details
+
+April 21:
+	- Fixed updated Single Memory and testing full instructions
+
+April 20:
+	- Bonus feature: Single memory with better hazard handling progress
+
+April 19:
+	- Bonus feature: auto test generator not working properly
+	- Fixing single memory bugs
+
+April 18:
+	- Hazard detection and forwarding implemented
+	- Single memory implementation Progress
+
+April 15:
+	- Finished buffer connections for pipelined datapath
+
+April 14:
+	- Pipelined datapath buffer progress
+
 April 13:
 	- Fixed Branch CU errors and general testing for all branch instrucitons working properly
 
@@ -17,7 +42,7 @@ April 10:
 	- Fixel all R and I types instructions problems
 
 April 8:
-	- Implemented all system calls
+	- Implemented system calls
 
 March 28:
 	- Fixed I instruction error (bug in shifting)
